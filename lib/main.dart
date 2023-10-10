@@ -1,11 +1,14 @@
-import 'package:appskeleton/presentation/pages/homepage/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import './navigator.dart' as navigator;
 import 'injection/provider.dart' as di;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await di.init();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -14,11 +17,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Namer App',
+        title: 'Skeleton App',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         ),
-        home: HomePage());
+        onGenerateRoute: (RouteSettings settings) {
+          navigator.settings = settings;
+          var routes = navigator.routes;
+          final WidgetBuilder? builder = routes[settings.name];
+          return MaterialPageRoute(builder: (ctx) => builder!(ctx));
+        });
   }
 }
